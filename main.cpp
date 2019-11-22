@@ -102,82 +102,49 @@ void updateObjectPosition( void ) {
     previous_time = current_time;
     float update_step = elapsed_time * 0.000005f;
 
-
-    // PADDEL 1
-
-    /* Update the object posistions depending on which flag is pressed */
-    if (up_key_pressed) {
-
-        // if top vertex not off the top of the screen
-        if (paddle1_pos_y <= 0.80f)
-          paddle1_pos_y += update_step;
-    }
-
-    if (down_key_pressed) {
-
-        // if bottom vertes not off the bottom of the screen
-        if (paddle1_pos_y >= -0.80f)
-          paddle1_pos_y -= update_step;
-    }
-
-
-    // PADDEL 2
-
-    /* Update the object posistions depending on which flag is pressed */
-    if (w_key_pressed) {
-
-        // if top vertex not off the top of the screen
-        if (paddle2_pos_y <= 0.80f)
-          paddle2_pos_y += update_step;
-    }
-
-    if (s_key_pressed) {
-
-        // if bottom vertes not off the bottom of the screen
-        if (paddle2_pos_y >= -0.80f)
-          paddle2_pos_y -= update_step;
-    }
+    paddle1.updatePaddle(up_key_pressed, down_key_pressed, update_step);
+    paddle2.updatePaddle(w_key_pressed, s_key_pressed, update_step);
 
 
     /* BALL */
 
     // printf("Ball (%.2f %.2f), UP: %d RIGHT: %d\n", ball_pos_x, ball_pos_y, ball_x_up, ball_y_right);
 
-    if (ball_pos_y >= 0.95f)
+    if (ball.pos_y >= 0.95f)
       ball_y_up = false;
 
-    if (ball_pos_y <= -0.95f)
+    if (ball.pos_y <= -0.95f)
       ball_y_up = true;
 
-    if (ball_pos_x >= 0.95f)
+    if (ball.pos_x >= 0.95f)
       ball_x_right = false;
 
-    if (ball_pos_x <= -0.95f)
+    if (ball.pos_x <= -0.95f)
       ball_x_right = true;
 
     // ball hits right paddle
-    if (ball_pos_x >= 0.85f && ball_pos_x <= 0.90f) {
-      printf("Right Zone\n");
-      if (ball_pos_y <= paddle1_pos_y + 0.2f && ball_pos_y >= paddle1_pos_y - 0.2f)
+    if (ball.pos_x >= 0.85f && ball.pos_x <= 0.90f) {
+
+      if (ball.pos_y <= paddle1.pos_y + 0.2f && ball.pos_y >= paddle1.pos_y - 0.2f)
         ball_x_right = false;
     }
 
     // ball hits left paddle
-    if (ball_pos_x <= -0.85f && ball_pos_x >= -0.90f) {
-      printf("Left Zone\n");
-      if (ball_pos_y <= paddle2_pos_y + 0.2f && ball_pos_y >= paddle2_pos_y - 0.2f)
+    if (ball.pos_x <= -0.85f && ball.pos_x >= -0.90f) {
+
+      if (ball.pos_y <= paddle2.pos_y + 0.2f && ball.pos_y >= paddle2.pos_y - 0.2f)
         ball_x_right = true;
     }
 
     if (ball_y_up)
-      ball_pos_y += update_step * 0.10;
+      ball.pos_y += update_step * 0.10;
     else
-      ball_pos_y -= update_step * 0.10;
+      ball.pos_y -= update_step * 0.10;
 
     if (ball_x_right)
-      ball_pos_x += update_step * 0.12;
+      ball.pos_x += update_step * 0.12;
     else
-      ball_pos_x -= update_step * 0.12;
+      ball.pos_x -= update_step * 0.12;
 
 }
 
@@ -196,62 +163,24 @@ static void RenderSceneCB( void )
 
   updateObjectPosition();
 
-  /* PADDEL 1 */
-  GLfloat World[4][4];
 
-  World[0][0] = 1.0f; World[0][1] = 0.0f; World[0][2] = 0.0f; World[0][3] = 0.0f;
-  World[1][0] = 0.0f; World[1][1] = 1.0f; World[1][2] = 0.0f; World[1][3] = paddle1_pos_y;
-  World[2][0] = 0.0f; World[2][1] = 0.0f; World[2][2] = 1.0f; World[2][3] = 0.0f;
-  World[3][0] = 0.0f; World[3][1] = 0.0f; World[3][2] = 0.0f; World[3][3] = 1.0f;
-
-  /* PADDEL 1 */
-  GLfloat World2[4][4];
-
-  World2[0][0] = 1.0f; World2[0][1] = 0.0f; World2[0][2] = 0.0f; World2[0][3] = 0.0f;
-  World2[1][0] = 0.0f; World2[1][1] = 1.0f; World2[1][2] = 0.0f; World2[1][3] = paddle2_pos_y;
-  World2[2][0] = 0.0f; World2[2][1] = 0.0f; World2[2][2] = 1.0f; World2[2][3] = 0.0f;
-  World2[3][0] = 0.0f; World2[3][1] = 0.0f; World2[3][2] = 0.0f; World2[3][3] = 1.0f;
-
-
-  /* BALL */
-
-  GLfloat World3[4][4];
-
-  World3[0][0] = 1.0f; World3[0][1] = 0.0f; World3[0][2] = 0.0f; World3[0][3] = ball_pos_x;
-  World3[1][0] = 0.0f; World3[1][1] = 1.0f; World3[1][2] = 0.0f; World3[1][3] = ball_pos_y;
-  World3[2][0] = 0.0f; World3[2][1] = 0.0f; World3[2][2] = 1.0f; World3[2][3] = 0.0f;
-  World3[3][0] = 0.0f; World3[3][1] = 0.0f; World3[3][2] = 0.0f; World3[3][3] = 1.0f;
-
-  /*
-  glUnifrom is a data type used to pass values to a shader program
-  glUniformMatrix4fv passes a 4x4 matrix of floating point values.
-
-  1. - The first parameter is a handle for where the 4x4 matrix will be stored in memory
-  2, - The second parameter is the number of 4x4 matricies we're going to pass
-  3. - The third parameter is whether the 4x4 matrix will be transposed
-  4. - The forth parameter is a pointer to the start of the array containing the matrix
-  */
-  glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &World[0][0]);
+  // Draw first paddle
+  paddle1.updateModelMat();
+  glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &paddle1.modelMat[0][0]);
   glBindVertexArray(paddle1.VAO);
-
-  /*
-  glDrawElements draws the provided verticies in the order provided by the EBO
-
-  1. - type of primative to draw
-  2. - number of elements to draw
-  3. - datatype of element array in the EBO (we used GLuint)
-  4. - offest of the element array
-  */
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
   // Draw second object
-  glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &World2[0][0]);
+  paddle2.updateModelMat();
+  glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &paddle2.modelMat[0][0]);
   glBindVertexArray(paddle2.VAO);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-  /* BALL */
-  glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &World3[0][0]);
+
+  // Draw Ball
+  ball.updateModelMat();
+  glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &ball.modelMat[0][0]);
   glBindVertexArray(ball.VAO);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

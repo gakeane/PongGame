@@ -3,7 +3,18 @@
 
 Model::Model() {
 
+  pos_y = 0.00f;
+  pos_y = 0.00f;
+
+  momentum = 0.00f;
+
+  modelMat[0][0] = 1.0f; modelMat[0][1] = 0.0f; modelMat[0][2] = 0.0f; modelMat[0][3] = 0.0f;
+  modelMat[1][0] = 0.0f; modelMat[1][1] = 1.0f; modelMat[1][2] = 0.0f; modelMat[1][3] = 0.0f;
+  modelMat[2][0] = 0.0f; modelMat[2][1] = 0.0f; modelMat[2][2] = 1.0f; modelMat[2][3] = 0.0f;
+  modelMat[3][0] = 0.0f; modelMat[3][1] = 0.0f; modelMat[3][2] = 0.0f; modelMat[3][3] = 1.0f;
+
 }
+
 
 /* Initialises the vertex position data into the VAO object at position 0, also initalises the element buffer object */
 void Model::initialiseBuffers(vec3* vertices, GLuint num_vertices, GLuint* elements, GLuint num_elements) {
@@ -77,4 +88,59 @@ void Model::initialiseNormalsBuffer(vec3* normals, GLuint num_vertices) {
     glEnableVertexAttribArray(2);
 
     glBindVertexArray(0);
+}
+
+
+
+
+void Model::updatePaddle(bool up_key_pressed, bool down_key_pressed, float update_step) {
+
+
+    //printf("Momentum: %.4f\n", momentum);
+
+    /* gain momentum when key is pressed */
+    if (up_key_pressed || down_key_pressed) {
+        if (momentum < 3.00f) {
+            momentum += 0.002f;
+        }
+    }
+
+    /* loose momentum when key not pressed */
+    else {
+        if (momentum > 0.00f) {
+            momentum -= 0.01f;
+        }
+    }
+
+    /* Ensure momentum is never less than 0 */
+    if (momentum < 0.00f) {
+        momentum = 0.00f;
+    }
+
+
+    /* Update the object posistions depending on which flag is pressed */
+    if (up_key_pressed) {
+
+        // if top vertex not off the top of the screen
+        if (pos_y <= 0.80f)
+          pos_y += update_step * momentum;
+    }
+
+    if (down_key_pressed) {
+
+        // if bottom vertes not off the bottom of the screen
+        if (pos_y >= -0.80f)
+          pos_y -= update_step * momentum;
+    }
+}
+
+
+void Model::updateBall(float paddle1_y_pos, float paddle2_y_pos, float update_step) {
+
+}
+
+
+void Model::updateModelMat() {
+    modelMat[0][3] = pos_x;
+    modelMat[1][3] = pos_y;
 }
