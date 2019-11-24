@@ -1,7 +1,6 @@
 
 /* include custom libraries */
 #include "model.h"
-#include "timing_utils.h"
 
 /* Declare vertex buffer objects as globals since they are used in many functions */
 Model paddle1 = Model();
@@ -105,46 +104,7 @@ void updateObjectPosition( void ) {
     paddle1.updatePaddle(up_key_pressed, down_key_pressed, update_step);
     paddle2.updatePaddle(w_key_pressed, s_key_pressed, update_step);
 
-
-    /* BALL */
-
-    // printf("Ball (%.2f %.2f), UP: %d RIGHT: %d\n", ball_pos_x, ball_pos_y, ball_x_up, ball_y_right);
-
-    if (ball.pos_y >= 0.95f)
-      ball_y_up = false;
-
-    if (ball.pos_y <= -0.95f)
-      ball_y_up = true;
-
-    if (ball.pos_x >= 0.95f)
-      ball_x_right = false;
-
-    if (ball.pos_x <= -0.95f)
-      ball_x_right = true;
-
-    // ball hits right paddle
-    if (ball.pos_x >= 0.85f && ball.pos_x <= 0.90f) {
-
-      if (ball.pos_y <= paddle1.pos_y + 0.2f && ball.pos_y >= paddle1.pos_y - 0.2f)
-        ball_x_right = false;
-    }
-
-    // ball hits left paddle
-    if (ball.pos_x <= -0.85f && ball.pos_x >= -0.90f) {
-
-      if (ball.pos_y <= paddle2.pos_y + 0.2f && ball.pos_y >= paddle2.pos_y - 0.2f)
-        ball_x_right = true;
-    }
-
-    if (ball_y_up)
-      ball.pos_y += update_step * 0.10;
-    else
-      ball.pos_y -= update_step * 0.10;
-
-    if (ball_x_right)
-      ball.pos_x += update_step * 0.12;
-    else
-      ball.pos_x -= update_step * 0.12;
+    ball.updateBall(paddle1.pos_y, paddle2.pos_y, update_step);
 
 }
 

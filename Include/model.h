@@ -8,10 +8,13 @@ Contains a model matrix for the mesh to position it in the world
 
 #include "gl_utils.h"
 #include "math_3d.h"
+#include "timing_utils.h"
 
 
 class Model {
 private:
+
+  int hit_count;
   double momentum;
 
 public:
@@ -27,6 +30,15 @@ public:
 
   GLfloat pos_x;
   GLfloat pos_y;
+  GLfloat pos_z;
+
+  bool ball_up;
+  bool ball_right;
+
+  GLfloat ball_speed_x;
+  GLfloat ball_speed_y;
+
+  unsigned long game_start_time;
 
 
   /* Default constructor */
@@ -37,6 +49,7 @@ public:
   void initialiseNormalsBuffer(vec3* normals, GLuint num_vertices);
 
   void updateModelMat();
+  void resetBall();
 
   void updatePaddle(bool up_key_pressed, bool down_key_pressed, float update_step);
   void updateBall(float paddle1_y_pos, float paddle2_y_pos, float update_step);

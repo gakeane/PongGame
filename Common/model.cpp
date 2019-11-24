@@ -3,15 +3,26 @@
 
 Model::Model() {
 
+  pos_x = 0.00f;
   pos_y = 0.00f;
-  pos_y = 0.00f;
-
-  momentum = 0.00f;
+  pos_z = 0.00f;
 
   modelMat[0][0] = 1.0f; modelMat[0][1] = 0.0f; modelMat[0][2] = 0.0f; modelMat[0][3] = 0.0f;
   modelMat[1][0] = 0.0f; modelMat[1][1] = 1.0f; modelMat[1][2] = 0.0f; modelMat[1][3] = 0.0f;
   modelMat[2][0] = 0.0f; modelMat[2][1] = 0.0f; modelMat[2][2] = 1.0f; modelMat[2][3] = 0.0f;
   modelMat[3][0] = 0.0f; modelMat[3][1] = 0.0f; modelMat[3][2] = 0.0f; modelMat[3][3] = 1.0f;
+
+  momentum = 0.00f;
+
+  // randomize these
+  ball_up = true;
+  ball_right = true;
+
+  ball_speed_x = 0.10f;
+  ball_speed_y = 0.10f;
+
+  hit_count = 0;
+  game_start_time = timeSinceEpoch();
 
 }
 
@@ -137,10 +148,78 @@ void Model::updatePaddle(bool up_key_pressed, bool down_key_pressed, float updat
 
 void Model::updateBall(float paddle1_y_pos, float paddle2_y_pos, float update_step) {
 
+
+
+    if (pos_y >= 0.95f)
+        ball_up = false;
+
+    if (pos_y <= -0.95f)
+        ball_up = true;
+
+    if (pos_x >= 1.05f)
+        resetBall();
+
+    if (pos_x <= -1.05f)
+        resetBall();
+
+    // ball hits right paddle
+    if (pos_x >= 0.85f && pos_x <= 0.90f) {
+
+        if (pos_y <= paddle1_y_pos + 0.20f && pos_y >= paddle1_y_pos - 0.20f) {
+            if (ball_right == true)
+                hit_count++;
+            ball_right = false;
+        }
+    }
+
+    // ball hits left paddle
+    if (pos_x <= -0.85f && pos_x >= -0.90f) {
+
+        if (pos_y <= paddle2_y_pos + 0.20f && pos_y >= paddle2_y_pos - 0.20f) {
+            if (ball_right == false)
+                hit_count++;
+            ball_right = true;
+        }
+    }
+
+    if (timeSinceEpoch() - game_start_time > 1000000) {
+
+        if (ball_up)
+            pos_y += update_step * (ball_speed_y + (hit_count * 0.02f));
+        else
+            pos_y -= update_step * (ball_speed_y + (hit_count * 0.02f));
+
+        if (ball_right)
+            pos_x += update_step * (ball_speed_x + (hit_count * 0.02f));
+        else
+            pos_x -= update_step * (ball_speed_x + (hit_count * 0.02f));
+    }
+
 }
 
 
 void Model::updateModelMat() {
     modelMat[0][3] = pos_x;
     modelMat[1][3] = pos_y;
+    modelMat[2][3] = pos_z;
+}
+
+
+void Model::resetBall() {
+
+    pos_x = 0.00f;
+    pos_y = 0.00f;
+    pos_z = 0.00f;
+
+    // randomize these
+    ball_up = true;
+    ball_right = true;
+
+    ball_speed_x = 0.10f;
+    ball_speed_y = 0.10f;
+
+    hit_count = 0;
+    game_start_time = timeSinceEpoch();
+    updateModelMat();
+
 }
