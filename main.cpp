@@ -9,6 +9,8 @@ Model ball = Model();
 
 /* Handles to values passed to the shader program */
 GLuint worldLocation;
+GLuint colorLocation;
+GLuint colorModeLocation;
 
 /* values used to track keyboard input */
 GLfloat paddle1_pos_y = 0.0f;
@@ -27,6 +29,10 @@ bool ball_x_right = true;
 unsigned long current_time = 0;
 unsigned long previous_time = 0;
 
+/* parameters used to track game modes and states */
+bool one_player_mode = false;
+bool colour_mode = false;
+
 /* File names and paths for the shader files */
 const char* vsFileName = "Shaders/shader.vs";
 const char* fsFileName = "Shaders/shader.fs";
@@ -38,6 +44,10 @@ void handleNormalKeyDownInput(unsigned char key, int mouse_x, int mouse_y)
     /* Quit if the escape key is pressed */
     if (key == 27) {
         exit(0);
+    }
+
+    if (key ==  'f') {
+        glutFullScreen();
     }
 
     /* move object up/down */
@@ -123,10 +133,19 @@ static void RenderSceneCB( void )
 
   updateObjectPosition();
 
+  // FIXME: Need to be able to disable player input on paddle in paddle class when for one player mode
+  if (one_player_mode) {
+      paddle2.pos_y = ball.pos_y;
+  }
+
+  // FIXME: When enabled causes objects to change colour when moved
+  glUniform1i(colorModeLocation, int(colour_mode));
+
 
   // Draw first paddle
   paddle1.updateModelMat();
   glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &paddle1.modelMat[0][0]);
+  glUniform3f(colorLocation, 1.00f, paddle1.pos_y, -paddle1.pos_y);
   glBindVertexArray(paddle1.VAO);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
@@ -134,6 +153,7 @@ static void RenderSceneCB( void )
   // Draw second object
   paddle2.updateModelMat();
   glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &paddle2.modelMat[0][0]);
+  glUniform3f(colorLocation, paddle2.pos_y, 1.00f, -paddle2.pos_y);
   glBindVertexArray(paddle2.VAO);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
@@ -141,6 +161,7 @@ static void RenderSceneCB( void )
   // Draw Ball
   ball.updateModelMat();
   glUniformMatrix4fv(worldLocation, 1, GL_TRUE, &ball.modelMat[0][0]);
+  glUniform3f(colorLocation, ball.pos_x, ball.pos_y, -(ball.pos_x + ball.pos_y) / 2);
   glBindVertexArray(ball.VAO);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
@@ -232,14 +253,13 @@ int main(int argc, char** argv)
   glutInit(&argc, argv);
 
   CreateGlutWindow(1024, 768, 100, 10, "Tutorial 03");
-  // glutFullScreen(); - This can be hard to get out of if escape key is not working
 
   InitializeGlutCallbacks();
 
   // Must be done after glut is initalised
   InitialiseGlew();
 
-  glClearColor(0.2f, 0.4f, 0.6f, 0.0f);
+  glClearColor(0.2f, 0.4f, 0.6f, 0.0f);     // this the value each pixel (element in the frame buffer) is set to when glClear is called (elements of freame buffer set to their clear value)
 
   CreateVertexBuffer();
 
@@ -247,6 +267,9 @@ int main(int argc, char** argv)
 
   worldLocation = glGetUniformLocation(shaderProgram, "Model");
   assert(worldLocation != 0xFFFFFFFF);
+
+  colorLocation = glGetUniformLocation(shaderProgram, "DynamicColour");
+  colorModeLocation = glGetUniformLocation(shaderProgram, "DynamicColourSet");
 
   glutMainLoop();
 

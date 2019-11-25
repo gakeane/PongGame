@@ -12,14 +12,15 @@ Model::Model() {
   modelMat[2][0] = 0.0f; modelMat[2][1] = 0.0f; modelMat[2][2] = 1.0f; modelMat[2][3] = 0.0f;
   modelMat[3][0] = 0.0f; modelMat[3][1] = 0.0f; modelMat[3][2] = 0.0f; modelMat[3][3] = 1.0f;
 
+  // Paddle Parameters
   momentum = 0.00f;
 
-  // randomize these
-  ball_up = true;
-  ball_right = true;
+  // Ball Parameters
+  ball_up = randomBool(0.50f);
+  ball_right = randomBool(0.50f);
 
-  ball_speed_x = 0.10f;
-  ball_speed_y = 0.10f;
+  ball_speed_x = randomFloat(0.10f, 0.20f);
+  ball_speed_y = randomFloat(0.10f, 0.20f);
 
   hit_count = 0;
   game_start_time = timeSinceEpoch();
@@ -212,11 +213,11 @@ void Model::resetBall() {
     pos_z = 0.00f;
 
     // randomize these
-    ball_up = true;
-    ball_right = true;
+    ball_up = randomBool(0.50f);
+    ball_right = randomBool(0.50f);
 
-    ball_speed_x = 0.10f;
-    ball_speed_y = 0.10f;
+    ball_speed_x = randomFloat(0.10f, 0.20f);
+    ball_speed_y = randomFloat(0.10f, 0.20f);
 
     hit_count = 0;
     game_start_time = timeSinceEpoch();
